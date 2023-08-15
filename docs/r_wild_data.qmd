@@ -1,0 +1,60 @@
+---
+title: "r_wild_data"
+format: html
+editor: visual
+execute: 
+  warning: false
+  messegas: false
+---
+
+## Part 2: Wild Data
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+mack_verts <- read_csv(here("data","AS00601.csv")) %>% 
+  clean_names()
+```
+
+```{r}
+mc_wt_5 <- mack_verts$weight[5] #6.9
+mc_length_8_20 <- mack_verts$length1[8:20]
+
+mc_dates <- mack_verts$sampledate
+```
+
+```{r}
+mc_salamanders <- mack_verts %>% 
+  dplyr::filter(species == "DITE")
+
+salamander_size <-ggplot(data = mc_salamanders, aes(x = mc_salamanders$length1, y = mc_salamanders$weight))+
+  geom_point(color = "purple", shape = 16)+
+  labs(x = "Salamander Length (mm)", y = "Salamander Weight (g)", title = "Weight versus Length for Salamanders")+
+  theme_classic()
+
+salamander_size
+
+ggsave(filename = here("figs", "salamander_size.jpg"), plot = salamander_size)
+```
+
+data source caption: https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-and.4027.14
+
+```{r}
+mc_trout <- mack_verts %>% 
+  dplyr::filter(species == "ONCL")
+
+trout_size <-ggplot(data = mc_trout, aes(x = mc_trout$length1, y = mc_trout$weight, color = mc_trout$reach))+
+  geom_point(shape = 16)+
+  labs(x = "Trout Length (mm)", y = "Trout Weight (g)", title = "Trout Sizes")+
+  theme_classic()+
+  scale_color_manual(values = c(L ="blue",M = "yellow",U = "purple"))+
+  facet_wrap(vars(mc_trout$reach))
+
+trout_size
+
+ggsave(filename = here("figs", "trout_size.jpg"), plot = trout_size)
+```
